@@ -2,10 +2,17 @@ import { Hono } from 'hono'
 import { auth } from './lib/auth'
 import { logger } from 'hono/logger'
 import { swaggerUI } from '@hono/swagger-ui'
+import { cors } from 'hono/cors'
 
 const app = new Hono()
 
 app.use(logger())
+app.use(cors({
+  origin: (origin) => origin, // Performance: Reflect origin for flexibility
+  allowHeaders: ['Content-Type', 'Authorization', 'x-admin-secret'],
+  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true,
+}))
 
 app.get('/', (c) => {
   return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation.')
