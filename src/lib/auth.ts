@@ -4,16 +4,20 @@ import { createAccessControl } from "better-auth/plugins/access";
 import { Pool } from "pg";
 import { Redis } from "ioredis"
 
-const redis = new Redis(`${process.env.REDIS_URL}?family=0`)
-   .on("error", (err) => {
-     console.error("Redis connection error:", err)
-   })
-   .on("connect", () => {
-     console.log("Redis connected")
-   })
-  .on("ready", () => {
-     console.log("Redis ready")
-   })
+const redis = new Redis(process.env.REDIS_URL as string, {
+	family: 0,
+	lazyConnect: true, // Performance: don't block startup
+	commandTimeout: 1000, // Safety: don't hang if redis is slow
+})
+	.on("error", (err) => {
+		console.error("Redis connection error:", err);
+	})
+	.on("connect", () => {
+		console.log("Redis connected");
+	})
+	.on("ready", () => {
+		console.log("Redis ready");
+	});
 
 /**
  * Access Control Definition
@@ -39,6 +43,7 @@ const userRole = ac.newRole({
 
 // Check better-auth docs for more info https://www.better-auth.com/docs/
 export const auth = betterAuth({
+	secret: process.env.BETTER_AUTH_SECRET,
 	emailAndPassword: {
 		enabled: true,
 	},
@@ -75,6 +80,9 @@ export const auth = betterAuth({
 	// DB config
 	database: new Pool({
 		connectionString: process.env.DATABASE_URL,
+		max: 20, // Performance: optimal pool size for concurrent requests
+		idleTimeoutMillis: 30000, // Resource management: close idle connections
+		connectionTimeoutMillis: 2000, // Safety: fail fast if DB is down
 	}),
 	// This is for the redis session storage
 	secondaryStorage: {

@@ -29,20 +29,36 @@ app.get('/ui', swaggerUI({ url: '/api/auth/open-api/generate-schema' }))
  */
 app.get('/api/access/validate', async (c) => {
   const appId = c.req.query('appId')
+  
+  // Early return: Validate appId before session lookup to avoid unnecessary DB/Redis calls
+  if (!appId) {
+    return c.json({ authorized: false, message: 'appId is required' }, 400)
+  }
+
   const session = await auth.api.getSession({ headers: c.req.raw.headers })
 
   if (!session) {
     return c.json({ authorized: false, message: 'No active session' }, 401)
   }
 
-  if (!appId) {
-    return c.json({ authorized: false, message: 'appId is required' }, 400)
+  const user = session.user as any
+  
+  // Performance win: Check admin role first to skip string processing for admins
+  if (user.role === 'admin') {
+    return c.json({
+      authorized: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    })
   }
 
-  const user = session.user as any
-  const allowedApps = (user.allowedApps as string || '').split(',').map(s => s.trim())
-
-  const isAuthorized = allowedApps.includes(appId) || user.role === 'admin'
+  // Optimized string check: use some() to stop at the first match and avoid map() overhead
+  const isAuthorized = (user.allowedApps as string || '')
+    .split(',')
+    .some(s => s.trim() === appId)
 
   return c.json({
     authorized: isAuthorized,
@@ -56,7 +72,8 @@ app.get('/api/access/validate', async (c) => {
 
 /**
  * Better Auth routes
+ * Using app.all is more efficient for the router than app.on with multiple methods
  */
-app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+app.all("/api/auth/**", (c) => auth.handler(c.req.raw));
 
 export default app
