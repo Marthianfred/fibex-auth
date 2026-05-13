@@ -74,6 +74,12 @@ app.get('/api/access/validate', async (c) => {
  * Better Auth routes
  * Using app.all is more efficient for the router than app.on with multiple methods
  */
-app.all("/api/auth/**", (c) => auth.handler(c.req.raw));
+app.all("/api/auth/**", (c) => {
+  // Diagnostic: Log if Auth header is present (only for debugging 401s)
+  if (c.req.path.includes('/admin/')) {
+    console.log(`[Admin Request] ${c.req.path} - Auth Header: ${c.req.header('Authorization') ? 'Present' : 'Missing'}`);
+  }
+  return auth.handler(c.req.raw);
+});
 
 export default app
