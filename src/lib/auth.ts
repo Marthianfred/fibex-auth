@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { openAPI } from "better-auth/plugins";
+import { openAPI, admin } from "better-auth/plugins";
 import { Pool } from "pg";
 import { Redis } from "ioredis"
 
@@ -27,7 +27,7 @@ export const auth = betterAuth({
 		},
 	},
 	// Add your plugins here
-	plugins: [openAPI()],
+	plugins: [openAPI(), admin()],
 	// DB config
 	database: new Pool({
 		connectionString: process.env.DATABASE_URL,
