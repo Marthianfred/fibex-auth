@@ -84,14 +84,24 @@ app.get('/api/access/validate', async (c) => {
 app.all("/api/auth/**", async (c) => {
   const authHeader = c.req.header('Authorization');
   const expectedSecret = "fibexadmin123";
+  const isSecretMatch = authHeader === `Bearer ${expectedSecret}`;
   
-  // Strict Diagnostic Log
-  if (c.req.path.includes('/admin/')) {
-    console.log(`[DEBUG] Path: ${c.req.path}`);
-    console.log(`[DEBUG] Auth Header: ${authHeader}`);
-    console.log(`[DEBUG] Secret Match: ${authHeader === `Bearer ${expectedSecret}`}`);
+  // High-Performance Admin Bypass: Call API directly if secret matches
+  if (isSecretMatch) {
+    if (c.req.path.endsWith('/admin/list-users')) {
+      const users = await auth.api.listUsers();
+      return c.json(users);
+    }
+    if (c.req.path.endsWith('/admin/get-user')) {
+      const id = c.req.query('id');
+      if (id) {
+        const user = await auth.api.getUser({ query: { id } });
+        return c.json(user);
+      }
+    }
   }
   
+  // Standard handler for everything else
   return auth.handler(c.req.raw);
 });
 
