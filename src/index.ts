@@ -89,12 +89,20 @@ app.all("/api/auth/**", async (c) => {
   // High-Performance Admin Bypass: Call API directly if secret matches
   if (isSecretMatch) {
     if (c.req.path.endsWith('/admin/create-user')) {
-      const body = await c.req.json();
-      const user = await auth.api.createUser({ 
-        headers: new Headers({ "x-admin-secret": expectedSecret }),
-        body 
-      });
-      return c.json(user);
+      try {
+        const body = await c.req.json();
+        // Performance & Validation: Clean up empty fields that might trip up Better Auth's strict schema
+        if (body.data === "" || body.data === null) delete body.data;
+        
+        const user = await auth.api.createUser({ 
+          headers: new Headers({ "x-admin-secret": expectedSecret }),
+          body 
+        });
+        return c.json(user);
+      } catch (error: any) {
+        console.error("[Create User Error]", error);
+        return c.json({ error: error.message || "Failed to create user" }, 400);
+      }
     }
     if (c.req.path.endsWith('/admin/list-users')) {
       // Direct SQL for maximum performance and reliability
