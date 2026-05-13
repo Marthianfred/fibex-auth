@@ -88,6 +88,14 @@ app.all("/api/auth/**", async (c) => {
   
   // High-Performance Admin Bypass: Call API directly if secret matches
   if (isSecretMatch) {
+    if (c.req.path.endsWith('/admin/create-user')) {
+      const body = await c.req.json();
+      const user = await auth.api.createUser({ 
+        headers: new Headers({ "x-admin-secret": expectedSecret }),
+        body 
+      });
+      return c.json(user);
+    }
     if (c.req.path.endsWith('/admin/list-users')) {
       // Direct SQL for maximum performance and reliability
       const result = await db.query('SELECT * FROM "user" LIMIT 100');
