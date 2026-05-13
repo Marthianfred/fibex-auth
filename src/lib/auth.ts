@@ -31,7 +31,6 @@ export const auth = betterAuth({
 	// DB config
 	database: new Pool({
 		connectionString: process.env.DATABASE_URL,
-		log: console.log,
 	}),
 	// This is for the redis session storage
 	secondaryStorage: {
