@@ -22,7 +22,7 @@ app.get('/health', (c) => {
  * Swagger UI for API Documentation and Management
  * Pointing to Better Auth OpenAPI schema
  */
-app.get('/ui', swaggerUI({ url: '/api/auth/openapi' }))
+app.get('/ui', swaggerUI({ url: '/api/auth/open-api/generate-schema' }))
 
 /**
  * Validation endpoint for multi-app access
