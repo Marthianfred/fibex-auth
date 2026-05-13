@@ -8,9 +8,9 @@ const app = new Hono()
 
 app.use(logger())
 app.use(cors({
-  origin: (origin) => origin, // Performance: Reflect origin for flexibility
+  origin: (origin) => origin,
   allowHeaders: ['Content-Type', 'Authorization', 'x-admin-secret'],
-  allowMethods: ['GET', 'POST', 'OPTIONS'],
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
 }) as any)
 
