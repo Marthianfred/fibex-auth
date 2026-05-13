@@ -89,7 +89,7 @@ app.all("/api/auth/**", async (c) => {
   // High-Performance Admin Bypass: Call API directly if secret matches
   if (isSecretMatch) {
     if (c.req.path.endsWith('/admin/list-users')) {
-      const users = await auth.api.listUsers();
+      const users = await auth.api.listUsers({ query: { limit: 100 } });
       return c.json(users);
     }
     if (c.req.path.endsWith('/admin/get-user')) {
