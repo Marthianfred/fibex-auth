@@ -12,7 +12,7 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'x-admin-secret'],
   allowMethods: ['GET', 'POST', 'OPTIONS'],
   credentials: true,
-}))
+}) as any)
 
 app.get('/', (c) => {
   return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation.')
