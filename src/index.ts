@@ -81,11 +81,17 @@ app.get('/api/access/validate', async (c) => {
  * Better Auth routes
  * Using app.all is more efficient for the router than app.on with multiple methods
  */
-app.all("/api/auth/**", (c) => {
-  // Diagnostic: Log if Auth header is present (only for debugging 401s)
+app.all("/api/auth/**", async (c) => {
+  const authHeader = c.req.header('Authorization');
+  const expectedSecret = "fibexadmin123";
+  
+  // Strict Diagnostic Log
   if (c.req.path.includes('/admin/')) {
-    console.log(`[Admin Request] ${c.req.path} - Auth Header: ${c.req.header('Authorization') ? 'Present' : 'Missing'}`);
+    console.log(`[DEBUG] Path: ${c.req.path}`);
+    console.log(`[DEBUG] Auth Header: ${authHeader}`);
+    console.log(`[DEBUG] Secret Match: ${authHeader === `Bearer ${expectedSecret}`}`);
   }
+  
   return auth.handler(c.req.raw);
 });
 

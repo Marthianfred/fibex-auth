@@ -76,7 +76,7 @@ export const auth = betterAuth({
 				admin: adminRole,
 				user: userRole,
 			},
-			adminSecret: "tu_mama_en_tangas_o_enhilo",
+			adminSecret: "fibexadmin123",
 		}),
 	],
 	// DB config
