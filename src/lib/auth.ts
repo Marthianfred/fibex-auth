@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { openAPI, admin } from "better-auth/plugins";
+import { createAccessControl } from "better-auth/plugins/access";
 import { Pool } from "pg";
 import { Redis } from "ioredis"
 
@@ -14,10 +15,43 @@ const redis = new Redis(`${process.env.REDIS_URL}?family=0`)
      console.log("Redis ready")
    })
 
+/**
+ * Access Control Definition
+ * Define permissions and roles for the system
+ */
+const ac = createAccessControl({
+	user: ["create", "read", "update", "delete", "impersonate"],
+	role: ["create", "read", "update", "delete"],
+	app: ["manage"], // Custom permission for app management
+});
+
+const adminRole = ac.newRole({
+	user: ["create", "read", "update", "delete", "impersonate"],
+	role: ["create", "read", "update", "delete"],
+	app: ["manage"],
+});
+
+const userRole = ac.newRole({
+	user: ["read"],
+	role: ["read"],
+	app: [],
+});
+
 // Check better-auth docs for more info https://www.better-auth.com/docs/
 export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
+	},
+	// User schema extension
+	user: {
+		additionalFields: {
+			allowedApps: {
+				type: "string",
+				required: false,
+				defaultValue: "", // Comma separated app IDs or JSON
+				input: false, // Hidden from signup
+			},
+		},
 	},
 	// Session config
 	session: {
@@ -27,7 +61,17 @@ export const auth = betterAuth({
 		},
 	},
 	// Add your plugins here
-	plugins: [openAPI(), admin()],
+	plugins: [
+		openAPI(),
+		admin({
+			ac,
+			roles: {
+				admin: adminRole,
+				user: userRole,
+			},
+			adminSecret: "tu_mama_en_tangas_o_enhilo",
+		}),
+	],
 	// DB config
 	database: new Pool({
 		connectionString: process.env.DATABASE_URL,
