@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { auth } from './lib/auth'
+import { auth, db } from './lib/auth'
 import { logger } from 'hono/logger'
 import { swaggerUI } from '@hono/swagger-ui'
 import { cors } from 'hono/cors'
@@ -89,20 +89,15 @@ app.all("/api/auth/**", async (c) => {
   // High-Performance Admin Bypass: Call API directly if secret matches
   if (isSecretMatch) {
     if (c.req.path.endsWith('/admin/list-users')) {
-      const users = await auth.api.listUsers({ 
-        headers: new Headers({ "x-admin-secret": expectedSecret }),
-        query: { limit: 100 } 
-      });
-      return c.json(users);
+      // Direct SQL for maximum performance and reliability
+      const result = await db.query('SELECT * FROM "user" LIMIT 100');
+      return c.json({ users: result.rows });
     }
     if (c.req.path.endsWith('/admin/get-user')) {
       const id = c.req.query('id');
       if (id) {
-        const user = await auth.api.getUser({ 
-          headers: new Headers({ "x-admin-secret": expectedSecret }),
-          query: { id } 
-        });
-        return c.json(user);
+        const result = await db.query('SELECT * FROM "user" WHERE id = $1', [id]);
+        return c.json({ user: result.rows[0] });
       }
     }
   }

@@ -41,6 +41,15 @@ const userRole = ac.newRole({
 	app: [],
 });
 
+const pool = new Pool({
+	connectionString: process.env.DATABASE_URL,
+	max: 20, // Performance: optimal pool size for concurrent requests
+	idleTimeoutMillis: 30000, // Resource management: close idle connections
+	connectionTimeoutMillis: 2000, // Safety: fail fast if DB is down
+});
+
+export const db = pool;
+
 // Check better-auth docs for more info https://www.better-auth.com/docs/
 export const auth = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET || "fibex_default_secret_for_protection",
