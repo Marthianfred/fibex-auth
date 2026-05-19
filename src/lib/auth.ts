@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { openAPI, admin } from "better-auth/plugins";
+import { dashboardPlugin } from "better-auth-dashboard";
 import { createAccessControl } from "better-auth/plugins/access";
 import { Pool } from "pg";
 import { Redis } from "ioredis"
@@ -88,6 +89,7 @@ export const auth = betterAuth({
 			},
 			adminSecret: "fibexadmin123",
 		}),
+		dashboardPlugin(),
 	],
 	// DB config
 	database: new Pool({

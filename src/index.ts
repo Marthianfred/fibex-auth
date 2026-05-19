@@ -3,7 +3,6 @@ import { auth, db } from './lib/auth'
 import { logger } from 'hono/logger'
 import { swaggerUI } from '@hono/swagger-ui'
 import { cors } from 'hono/cors'
-import { dashboard } from 'better-auth-dashboard'
 
 const app = new Hono()
 
@@ -16,7 +15,7 @@ app.use(cors({
 }) as any)
 
 app.get('/', (c) => {
-  return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation or /dashboard for admin UI.')
+  return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation.')
 })
 
 app.get('/health', (c) => {
@@ -34,9 +33,12 @@ app.get('/ui', swaggerUI({ url: '/api/auth/open-api/generate-schema' }))
 
 /**
  * Better Auth Dashboard UI
- * Provides a UI for managing users, roles, and other auth aspects.
+ * NOTE: The official better-auth-dashboard UI is currently Next.js-focused.
+ * To use the dashboard, you can host the dashboard React app separately
+ * and point it to this server, or use the OpenAPI UI for management.
+ * The dashboard backend endpoints are enabled via dashboardPlugin() in auth.ts.
  */
-app.get('/dashboard/**', dashboard({ auth }))
+// app.get('/dashboard/**', dashboard({ auth }))
 
 /**
  * Validation endpoint for multi-app access
