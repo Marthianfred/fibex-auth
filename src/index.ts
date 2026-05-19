@@ -3,6 +3,7 @@ import { auth, db } from './lib/auth'
 import { logger } from 'hono/logger'
 import { swaggerUI } from '@hono/swagger-ui'
 import { cors } from 'hono/cors'
+import { dashboard } from 'better-auth-dashboard'
 
 const app = new Hono()
 
@@ -15,7 +16,7 @@ app.use(cors({
 }) as any)
 
 app.get('/', (c) => {
-  return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation.')
+  return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation or /dashboard for admin UI.')
 })
 
 app.get('/health', (c) => {
@@ -30,6 +31,12 @@ app.get('/health', (c) => {
  * Pointing to Better Auth OpenAPI schema
  */
 app.get('/ui', swaggerUI({ url: '/api/auth/open-api/generate-schema' }))
+
+/**
+ * Better Auth Dashboard UI
+ * Provides a UI for managing users, roles, and other auth aspects.
+ */
+app.get('/dashboard/**', dashboard({ auth }))
 
 /**
  * Validation endpoint for multi-app access
