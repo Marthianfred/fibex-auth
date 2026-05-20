@@ -5,13 +5,12 @@ COPY apps/backend/package.json ./
 RUN bun install --production
 
 COPY apps/backend/src ./src
+RUN bun build ./src/index.ts --compile --outfile server
 
 FROM oven/bun:alpine
 WORKDIR /app
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/src ./src
+COPY --from=builder /app/server ./server
 
 EXPOSE 3000
-CMD ["bun", "run", "src/index.ts"]
+CMD ["./server"]
