@@ -91,13 +91,7 @@ export const auth = betterAuth({
 		}),
 		dashboardPlugin(),
 	],
-	// DB config
-	database: new Pool({
-		connectionString: process.env.DATABASE_URL,
-		max: 20, // Performance: optimal pool size for concurrent requests
-		idleTimeoutMillis: 30000, // Resource management: close idle connections
-		connectionTimeoutMillis: 2000, // Safety: fail fast if DB is down
-	}),
+	database: pool,
 	// This is for the redis session storage
 	secondaryStorage: {
 		get: async (key) => {

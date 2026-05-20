@@ -5,3 +5,4 @@ node_modules/
 better-auth_migrations/*
 server
 .DS_Store
+.idea/
