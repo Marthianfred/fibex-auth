@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import * as UI from "../ui/DashboardComponents";
 import {
   Home,
@@ -102,18 +102,18 @@ export function FibexDashboard() {
   const session = authClient.useSession();
   const currentUser = session.data?.user;
 
-  const { page, params } = matchRoute(pathname);
+  const { page, params } = useMemo(() => matchRoute(pathname), [pathname]);
 
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
-  const getActiveState = (itemUrl: string) => {
+  const getActiveState = useCallback((itemUrl: string) => {
     return pathname === itemUrl || (itemUrl !== basePath && pathname.startsWith(itemUrl));
-  };
+  }, [pathname]);
 
-  const navigate = (url: string) => {
+  const navigate = useCallback((url: string) => {
     window.history.pushState(null, "", url);
     setPathname(url);
-  };
+  }, []);
 
   return (
     <UI.TooltipProvider>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { authClient } from "../../lib/auth-client";
 import { adminApi, dashboardApi } from "../../lib/admin-api";
 import { Users, Shield, Activity, Server, ArrowRight, type LucideIcon } from "lucide-react";
@@ -12,11 +12,11 @@ export function HomePage() {
 
   useEffect(() => {
     adminApi.listUsers({ query: { limit: "1", offset: "0" } })
-      .then((res: { data?: { total: number }; error?: { message: string } }) => { if (res.data?.total !== undefined) setUserCount(res.data.total); })
+      .then((res: any) => { if (res.data?.total !== undefined) setUserCount(res.data.total); })
       .catch(() => {});
 
     dashboardApi.getEndpoints()
-      .then((res: { data?: { paths?: string[] } | Array<unknown>; error?: { message: string } }) => {
+      .then((res: any) => {
         const data = res.data;
         if (data && !Array.isArray(data) && data.paths) setRouteCount(data.paths.length);
         else if (Array.isArray(data)) setRouteCount(data.length);
@@ -87,7 +87,7 @@ export function HomePage() {
   );
 }
 
-function QuickActionCard({
+const QuickActionCard = memo(({
   title,
   description,
   icon: Icon,
@@ -97,7 +97,7 @@ function QuickActionCard({
   description: string;
   icon: LucideIcon;
   navigate: () => void;
-}) {
+}) => {
   return (
     <div
       className="bg-white border border-gray-200 rounded-lg p-6 hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer group"
@@ -115,4 +115,6 @@ function QuickActionCard({
       </div>
     </div>
   );
-}
+});
+
+QuickActionCard.displayName = "QuickActionCard";

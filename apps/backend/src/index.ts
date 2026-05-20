@@ -69,8 +69,9 @@ app.get('/api/access/validate', async (c) => {
 
 app.all("/api/auth/**", async (c) => {
   const authHeader = c.req.header('Authorization');
-  const expectedSecret = "fibexadmin123";
-  const isSecretMatch = authHeader === `Bearer ${expectedSecret}`;
+  const adminSecretHeader = c.req.header('x-admin-secret');
+  const expectedSecret = process.env.ADMIN_SECRET || "fibexadmin123";
+  const isSecretMatch = authHeader === `Bearer ${expectedSecret}` || adminSecretHeader === expectedSecret;
   
   if (isSecretMatch) {
     if (c.req.path.endsWith('/admin/create-user')) {

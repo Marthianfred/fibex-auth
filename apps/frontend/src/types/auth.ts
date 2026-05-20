@@ -2,23 +2,23 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
-  image: string | null;
+  image?: string | null;
   emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   role?: string;
   banned?: boolean | null;
   banReason?: string | null;
-  banExpires?: string | null;
+  banExpires?: string | Date | null;
 }
 
 export interface AuthSession {
   id: string;
   userId: string;
   token: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: string | Date;
+  createdAt: string | Date;
+  updatedAt: string | Date;
   ipAddress?: string | null;
   userAgent?: string | null;
 }

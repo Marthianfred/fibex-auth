@@ -23,7 +23,7 @@ export function UsersPage() {
         query: { limit: "100", offset: "0" },
       });
       if (res.data) {
-        setUsers(res.data.users || []);
+        setUsers(((res.data as any).users || []) as AuthUser[]);
       } else if (res.error) {
         setError(res.error.message || "Failed to fetch users");
       }

@@ -24,8 +24,8 @@ export function UserDetailPage({ userId }: Props) {
         adminApi.getUser({ query: { userId } }),
         adminApi.listUserSessions({ query: { userId } }),
       ]);
-      if (userRes.data) setUser(userRes.data.user || userRes.data);
-      if (sessionsRes.data) setSessions(sessionsRes.data.sessions || sessionsRes.data || []);
+      if (userRes.data) setUser((userRes.data as any).user || userRes.data);
+      if (sessionsRes.data) setSessions((sessionsRes.data as any).sessions || sessionsRes.data || []);
       if (userRes.error) setError(userRes.error.message || "Failed to fetch user");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch user data");
@@ -75,7 +75,8 @@ export function UserDetailPage({ userId }: Props) {
   const handleImpersonate = async () => {
     try {
       const res = await adminApi.impersonateUser({ body: { userId: user!.id } });
-      if (res.data?.url) window.location.href = res.data.url;
+      const data = res.data as any;
+      if (data?.url) window.location.href = data.url;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to impersonate user");
     }
