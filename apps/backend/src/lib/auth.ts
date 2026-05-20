@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
-import { openAPI, admin } from "better-auth/plugins";
+import { openAPI, admin, jwt } from "better-auth/plugins";
+import { oauthProvider } from "@better-auth/oauth-provider";
 import { dashboardPlugin } from "better-auth-dashboard";
 import { createAccessControl } from "better-auth/plugins/access";
 import { Pool } from "pg";
@@ -46,9 +47,14 @@ export const db = pool;
 
 export const auth = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET || "fibex_default_secret_for_protection",
-	baseURL: process.env.BETTER_AUTH_URL,
+	baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 	basePath: "/api/auth",
 	trustedOrigins: ["*"],
+	advanced: {
+		crossSubDomainCookies: {
+			enabled: true,
+		},
+	},
 	emailAndPassword: {
 		enabled: true,
 	},
@@ -76,9 +82,14 @@ export const auth = betterAuth({
 				admin: adminRole,
 				user: userRole,
 			},
-			adminSecret: "fibexadmin123",
+			adminSecret: process.env.ADMIN_SECRET,
 		}),
 		dashboardPlugin(),
+		jwt(),
+		oauthProvider({
+			loginPage: "/login",
+			consentPage: "/oauth2/consent",
+		}),
 	],
 	database: pool,
 	secondaryStorage: {

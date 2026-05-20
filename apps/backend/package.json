@@ -7,6 +7,7 @@
     "lint": "bun x tsc --noEmit"
   },
   "dependencies": {
+    "@better-auth/oauth-provider": "^1.6.11",
     "@hono/swagger-ui": "^0.6.1",
     "better-auth": "^1.6.11",
     "better-auth-dashboard": "^0.0.4",

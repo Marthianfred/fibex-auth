@@ -3,7 +3,7 @@ import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import { dashboardClientPlugin } from "better-auth-dashboard";
 
 export const authClient = createAuthClient({
-    baseURL: import.meta.env.VITE_BETTER_AUTH_URL || 'https://better-auth-server-production-76d3.up.railway.app',
+    baseURL: import.meta.env.VITE_BETTER_AUTH_URL || 'http://localhost:3000',
     fetchOptions: {
         credentials: 'include',
     },

@@ -12,7 +12,7 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'x-admin-secret'],
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   credentials: true,
-}) as any)
+}))
 
 app.get('/', (c) => {
   return c.text('FIBEX Auth Server is running. Visit /ui for API Documentation.')
@@ -70,7 +70,10 @@ app.get('/api/access/validate', async (c) => {
 app.all("/api/auth/**", async (c) => {
   const authHeader = c.req.header('Authorization');
   const adminSecretHeader = c.req.header('x-admin-secret');
-  const expectedSecret = process.env.ADMIN_SECRET || "fibexadmin123";
+  const expectedSecret = process.env.ADMIN_SECRET;
+  if (!expectedSecret) {
+    return c.json({ error: "ADMIN_SECRET not configured" }, 500);
+  }
   const isSecretMatch = authHeader === `Bearer ${expectedSecret}` || adminSecretHeader === expectedSecret;
   
   if (isSecretMatch) {
