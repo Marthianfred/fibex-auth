@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "bun run --hot src/index.ts",
     "build": "bun build ./src/index.ts --compile --outfile server",
-    "start": "./server"
+    "start": "./server",
+    "lint": "bun x tsc --noEmit"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
