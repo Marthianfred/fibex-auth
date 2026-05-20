@@ -118,4 +118,8 @@ app.all("/api/auth/**", async (c) => {
   return auth.handler(c.req.raw);
 });
 
-export default app
+export default {
+  port: process.env.PORT ? Number(process.env.PORT) : 3000,
+  hostname: "0.0.0.0",
+  fetch: app.fetch,
+}
