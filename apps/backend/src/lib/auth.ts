@@ -52,7 +52,6 @@ export const auth = betterAuth({
 	advanced: {
 		crossSubDomainCookies: {
 			enabled: true,
-			domain: ".up.railway.app",
 		},
 	},
 	emailAndPassword: {
