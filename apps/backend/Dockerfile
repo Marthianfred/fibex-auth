@@ -19,7 +19,7 @@ WORKDIR /app
 
 RUN apk add --no-cache python3 make g++
 
-COPY --from=builder /app/apps/backend/server /server
+COPY --from=builder /app/apps/backend/server ./server
 
 EXPOSE 3000
 CMD ["./server"]
