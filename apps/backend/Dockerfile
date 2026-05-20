@@ -1,6 +1,9 @@
 FROM oven/bun:alpine AS builder
 WORKDIR /app
 
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
 # Copy root config
 COPY package.json bun.lock turbo.json ./
 # Copy all workspace manifests to allow Bun to link them correctly
