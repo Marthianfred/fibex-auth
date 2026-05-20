@@ -7,7 +7,7 @@ RUN bun install --production
 COPY apps/backend/src ./src
 RUN bun build ./src/index.ts --compile --outfile server
 
-FROM oven/bun:alpine
+FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/server ./server
