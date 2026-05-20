@@ -1,20 +1,8 @@
 {
-  "name": "auth-server",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "build": "bun build ./src/index.ts --compile --outfile server",
-    "start": "./server"
-  },
-  "dependencies": {
-    "@hono/swagger-ui": "^0.6.1",
-    "better-auth": "^1.6.11",
-    "better-auth-dashboard": "^0.0.4",
-    "hono": "^4.12.2",
-    "ioredis": "^5.9.3",
-    "pg": "^8.18.0"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/pg": "^8.16.0"
-  }
+  "name": "fibex-auth-monorepo",
+  "private": true,
+  "workspaces": [
+    "fibex-auth",
+    "fibex-auth-dashboard"
+  ]
 }

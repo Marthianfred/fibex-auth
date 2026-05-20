@@ -25,28 +25,11 @@ app.get('/health', (c) => {
   })
 })
 
-/**
- * Swagger UI for API Documentation and Management
- * Pointing to Better Auth OpenAPI schema
- */
 app.get('/ui', swaggerUI({ url: '/api/auth/open-api/generate-schema' }))
 
-/**
- * Better Auth Dashboard UI
- * NOTE: The official better-auth-dashboard UI is currently Next.js-focused.
- * To use the dashboard, you can host the dashboard React app separately
- * and point it to this server, or use the OpenAPI UI for management.
- * The dashboard backend endpoints are enabled via dashboardPlugin() in auth.ts.
- */
-// app.get('/dashboard/**', dashboard({ auth }))
-
-/**
- * Validation endpoint for multi-app access
- */
 app.get('/api/access/validate', async (c) => {
   const appId = c.req.query('appId')
   
-  // Early return: Validate appId before session lookup to avoid unnecessary DB/Redis calls
   if (!appId) {
     return c.json({ authorized: false, message: 'appId is required' }, 400)
   }
@@ -59,7 +42,6 @@ app.get('/api/access/validate', async (c) => {
 
   const user = session.user as any
   
-  // Performance win: Check admin role first to skip string processing for admins
   if (user.role === 'admin') {
     return c.json({
       authorized: true,
@@ -71,7 +53,6 @@ app.get('/api/access/validate', async (c) => {
     })
   }
 
-  // Optimized string check: use some() to stop at the first match and avoid map() overhead
   const isAuthorized = (user.allowedApps as string || '')
     .split(',')
     .some(s => s.trim() === appId)
@@ -86,22 +67,16 @@ app.get('/api/access/validate', async (c) => {
   })
 })
 
-/**
- * Better Auth routes
- * Using app.all is more efficient for the router than app.on with multiple methods
- */
 app.all("/api/auth/**", async (c) => {
   const authHeader = c.req.header('Authorization');
   const expectedSecret = "fibexadmin123";
   const isSecretMatch = authHeader === `Bearer ${expectedSecret}`;
   
-  // High-Performance Admin Bypass: Call API directly if secret matches
   if (isSecretMatch) {
     if (c.req.path.endsWith('/admin/create-user')) {
       try {
         const body = await c.req.json();
         
-        // 1. Create the user using the public sign-up API (avoids 401 and handles hashing)
         const result = await auth.api.signUpEmail({ 
           body: {
             email: body.email,
@@ -110,10 +85,8 @@ app.all("/api/auth/**", async (c) => {
           }
         });
         
-        // 2. Immediately promote to the desired role via direct SQL (bypasses admin plugin restrictions)
         if (body.role) {
           await db.query('UPDATE "user" SET role = $1 WHERE email = $2', [body.role, body.email]);
-          // Refetch or just update the role in the response
           if ('user' in result) {
             (result.user as any).role = body.role;
           }
@@ -126,21 +99,19 @@ app.all("/api/auth/**", async (c) => {
       }
     }
     if (c.req.path.endsWith('/admin/list-users')) {
-      // Direct SQL for maximum performance and reliability
-      const result = await db.query('SELECT * FROM "user" LIMIT 100');
+      const result = await db.query('SELECT id, name, email, role, banned, "createdAt" FROM "user" LIMIT 100');
       return c.json({ users: result.rows });
     }
     if (c.req.path.endsWith('/admin/get-user')) {
       const id = c.req.query('id');
       if (id) {
-        const result = await db.query('SELECT * FROM "user" WHERE id = $1', [id]);
+        const result = await db.query('SELECT id, name, email, role, banned, "createdAt", "updatedAt", "emailVerified" FROM "user" WHERE id = $1', [id]);
         return c.json({ user: result.rows[0] });
       }
     }
   }
   
-  // Standard handler for everything else
   return auth.handler(c.req.raw);
 });
 
-export default app// trigger redeploy
+export default app

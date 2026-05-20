@@ -7,8 +7,8 @@ import { Redis } from "ioredis"
 
 const redis = new Redis(process.env.REDIS_URL as string, {
 	family: 0,
-	lazyConnect: true, // Performance: don't block startup
-	commandTimeout: 1000, // Safety: don't hang if redis is slow
+	lazyConnect: true,
+	commandTimeout: 1000,
 })
 	.on("error", (err) => {
 		console.error("Redis connection error:", err);
@@ -20,14 +20,10 @@ const redis = new Redis(process.env.REDIS_URL as string, {
 		console.log("Redis ready");
 	});
 
-/**
- * Access Control Definition
- * Define permissions and roles for the system
- */
 const ac = createAccessControl({
 	user: ["create", "read", "update", "delete", "impersonate"],
 	role: ["create", "read", "update", "delete"],
-	app: ["manage"], // Custom permission for app management
+	app: ["manage"],
 });
 
 const adminRole = ac.newRole({
@@ -44,14 +40,13 @@ const userRole = ac.newRole({
 
 const pool = new Pool({
 	connectionString: process.env.DATABASE_URL,
-	max: 20, // Performance: optimal pool size for concurrent requests
-	idleTimeoutMillis: 30000, // Resource management: close idle connections
-	connectionTimeoutMillis: 2000, // Safety: fail fast if DB is down
+	max: 20,
+	idleTimeoutMillis: 30000,
+	connectionTimeoutMillis: 2000,
 });
 
 export const db = pool;
 
-// Check better-auth docs for more info https://www.better-auth.com/docs/
 export const auth = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET || "fibex_default_secret_for_protection",
 	baseURL: process.env.BETTER_AUTH_URL,
@@ -60,25 +55,22 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
-	// User schema extension
 	user: {
 		additionalFields: {
 			allowedApps: {
 				type: "string",
 				required: false,
-				defaultValue: "", // Comma separated app IDs or JSON
-				input: false, // Hidden from signup
+				defaultValue: "",
+				input: false,
 			},
 		},
 	},
-	// Session config
 	session: {
 		cookieCache: {
 			enabled: true,
 			maxAge: 5 * 60,
 		},
 	},
-	// Add your plugins here
 	plugins: [
 		openAPI(),
 		admin({
@@ -92,7 +84,6 @@ export const auth = betterAuth({
 		dashboardPlugin(),
 	],
 	database: pool,
-	// This is for the redis session storage
 	secondaryStorage: {
 		get: async (key) => {
 			const value = await redis.get(key);
