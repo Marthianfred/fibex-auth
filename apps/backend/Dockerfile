@@ -1,29 +1,17 @@
 FROM oven/bun:alpine AS builder
 WORKDIR /app
 
-# Copy root config
-COPY package.json bun.lock turbo.json ./
-COPY apps/backend/package.json ./apps/backend/
-COPY apps/frontend/package.json ./apps/frontend/
+COPY apps/backend/package.json ./
+RUN bun install --production
 
-RUN bun install --frozen-lockfile
+COPY apps/backend/src ./src
 
-# Copy source code
-COPY apps/backend ./apps/backend
-COPY apps/frontend ./apps/frontend
-
-# Runtime
 FROM oven/bun:alpine
 WORKDIR /app
 
-# Copy monorepo structure with deps
-COPY --from=builder /app/package.json /app/bun.lock /app/turbo.json ./
-COPY --from=builder /app/apps/backend/package.json ./apps/backend/
-COPY --from=builder /app/apps/frontend/package.json ./apps/frontend/
 COPY --from=builder /app/node_modules ./node_modules
-
-# Copy backend source
-COPY --from=builder /app/apps/backend ./apps/backend
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/src ./src
 
 EXPOSE 3000
-CMD ["bun", "run", "--cwd", "apps/backend", "src/index.ts"]
+CMD ["bun", "run", "src/index.ts"]
