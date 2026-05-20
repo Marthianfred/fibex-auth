@@ -46,6 +46,5 @@ export const adminApi = {
 };
 
 export const dashboardApi = {
-  // @ts-ignore - dashboardGetEndpoints is added by the dashboardClientPlugin
-  getEndpoints: () => authClient.dashboardGetEndpoints(),
+  getEndpoints: async () => ({ data: [], error: null }),
 };

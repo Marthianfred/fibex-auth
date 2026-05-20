@@ -75,8 +75,10 @@ export const auth = betterAuth({
 			ac,
 			roles: {
 				admin: adminRole,
+				ADMINISTRATIVO: adminRole,
 				user: userRole,
 			},
+			adminRoles: ["admin", "ADMINISTRATIVO"],
 			adminSecret: process.env.ADMIN_SECRET,
 		}),
 		jwt(),
