@@ -19,10 +19,7 @@ WORKDIR /app
 
 RUN apk add --no-cache python3 make g++
 
-COPY apps/backend/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 COPY --from=builder /app/apps/backend/server /server
 
 EXPOSE 3000
-CMD ["/entrypoint.sh"]
+CMD ["./server"]
