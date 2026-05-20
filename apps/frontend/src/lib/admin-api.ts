@@ -46,5 +46,8 @@ export const adminApi = {
 };
 
 export const dashboardApi = {
-  getEndpoints: async () => ({ data: [], error: null }),
+  getEndpoints: async (): Promise<{ data: { paths: string[] } | null; error: null }> => ({
+    data: { paths: [] },
+    error: null,
+  }),
 };
