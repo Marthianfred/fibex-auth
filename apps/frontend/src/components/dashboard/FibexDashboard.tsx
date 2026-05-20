@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Settings,
   ChevronRight,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -217,6 +218,20 @@ export function FibexDashboard() {
                 </div>
                 <div className="text-[10px] text-gray-500">{(currentUser as Record<string, unknown>)?.role as string || "—"}</div>
               </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await authClient.signOut();
+                  } finally {
+                    window.location.href = "/login";
+                  }
+                }}
+                title="Sign out"
+                className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </UI.Sidebar>
