@@ -1,8 +1,6 @@
 FROM oven/bun:alpine AS builder
 WORKDIR /app
 
-RUN apk add --no-cache python3 make g++
-
 # Copy root config
 COPY package.json bun.lock turbo.json ./
 COPY apps/backend/package.json ./apps/backend/
@@ -17,10 +15,6 @@ COPY apps/frontend ./apps/frontend
 # Runtime
 FROM oven/bun:alpine
 WORKDIR /app
-
-# Python + build tools needed for better-sqlite3 native module
-# (pulled by better-auth-dashboard -> @better-auth/cli at runtime)
-RUN apk add --no-cache python3 make g++
 
 # Copy monorepo structure with deps
 COPY --from=builder /app/package.json /app/bun.lock /app/turbo.json ./

@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { openAPI, admin, jwt } from "better-auth/plugins";
 import { oauthProvider } from "@better-auth/oauth-provider";
-import { dashboardPlugin } from "better-auth-dashboard";
 import { createAccessControl } from "better-auth/plugins/access";
 import { Pool } from "pg";
 import { Redis } from "ioredis"
@@ -84,7 +83,6 @@ export const auth = betterAuth({
 			},
 			adminSecret: process.env.ADMIN_SECRET,
 		}),
-		dashboardPlugin(),
 		jwt(),
 		oauthProvider({
 			loginPage: "/login",
