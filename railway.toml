@@ -1,6 +1,0 @@
-[build]
-dockerfilePath = "apps/backend/Dockerfile"
-
-[deploy]
-startCommand = "./server"
-healthcheckPath = "/health"
