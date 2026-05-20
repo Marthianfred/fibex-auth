@@ -6,18 +6,15 @@ import { Pool } from "pg";
 import { Redis } from "ioredis"
 
 const redis = new Redis(process.env.REDIS_URL as string, {
-	family: 0,
+	family: 4,
 	lazyConnect: true,
-	commandTimeout: 1000,
+	commandTimeout: 5000,
+	enableReadyCheck: false,
+	maxRetriesPerRequest: 3,
+	retryStrategy: (times) => Math.min(times * 200, 5000),
 })
 	.on("error", (err) => {
-		console.error("Redis connection error:", err);
-	})
-	.on("connect", () => {
-		console.log("Redis connected");
-	})
-	.on("ready", () => {
-		console.log("Redis ready");
+		console.error("Redis connection error:", err.message);
 	});
 
 const ac = createAccessControl({
