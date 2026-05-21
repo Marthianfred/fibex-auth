@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { openAPI, jwt } from "better-auth/plugins";
-import { Pool } from "pg";
 import { Redis } from "ioredis";
+import { db } from "./db";
 
 const redis = new Redis(process.env.REDIS_URL as string, {
 	family: 4,
@@ -14,14 +14,7 @@ const redis = new Redis(process.env.REDIS_URL as string, {
 	console.error("Redis connection error:", err.message);
 });
 
-const pool = new Pool({
-	connectionString: process.env.DATABASE_URL,
-	max: 20,
-	idleTimeoutMillis: 30000,
-	connectionTimeoutMillis: 2000,
-});
-
-export const db = pool;
+export { db };
 
 export const auth = betterAuth({
 	secret: process.env.BETTER_AUTH_SECRET || "fibex_default_secret_for_protection",
@@ -54,7 +47,7 @@ export const auth = betterAuth({
 		},
 	},
 	plugins: [openAPI(), jwt()],
-	database: pool,
+	database: db,
 	secondaryStorage: {
 		get: async (key) => {
 			const value = await redis.get(key);
