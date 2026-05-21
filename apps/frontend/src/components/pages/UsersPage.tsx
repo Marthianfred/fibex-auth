@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { adminApi } from "../../lib/admin-api";
+import { adminApi, rolesApi, type CustomRole } from "../../lib/admin-api";
 import type { AuthUser } from "../../types/auth";
 import { Users, UserPlus, Shield, Ban, RefreshCw, Trash2 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -9,6 +9,7 @@ import { AdminEditUserModal } from "./AdminEditUserModal";
 
 export function UsersPage() {
   const [users, setUsers] = useState<AuthUser[]>([]);
+  const [roles, setRoles] = useState<CustomRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -19,13 +20,17 @@ export function UsersPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await adminApi.listUsers({
-        query: { limit: "100", offset: "0" },
-      });
-      if (res.data) {
-        setUsers(((res.data as any).users || []) as AuthUser[]);
-      } else if (res.error) {
-        setError(res.error || "Failed to fetch users");
+      const [usersRes, rolesRes] = await Promise.all([
+        adminApi.listUsers({ query: { limit: "100", offset: "0" } }),
+        rolesApi.list(),
+      ]);
+      if (usersRes.data) {
+        setUsers(((usersRes.data as any).users || []) as AuthUser[]);
+      } else if (usersRes.error) {
+        setError(usersRes.error || "Failed to fetch users");
+      }
+      if (rolesRes.data) {
+        setRoles(rolesRes.data.roles);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch users");
@@ -140,13 +145,19 @@ export function UsersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <select
-                      value={user.role || "user"}
+                      value={user.role || ""}
                       onChange={(e) => handleRoleChange(user.id, e.target.value)}
                       className="text-xs border border-gray-300 rounded px-2 py-1 bg-white"
                     >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                      <option value="moderator">Moderator</option>
+                      {!roles.some((r) => r.name === user.role) && user.role && (
+                        <option value={user.role}>{user.role}</option>
+                      )}
+                      {!user.role && <option value="">—</option>}
+                      {roles.map((r) => (
+                        <option key={r.id} value={r.name}>
+                          {r.name}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className="px-4 py-3">
