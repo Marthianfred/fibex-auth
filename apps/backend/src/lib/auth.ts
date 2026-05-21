@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
-import { openAPI, admin, jwt } from "better-auth/plugins";
-import { oauthProvider } from "@better-auth/oauth-provider";
-import { createAccessControl } from "better-auth/plugins/access";
+import { openAPI, jwt } from "better-auth/plugins";
 import { Pool } from "pg";
-import { Redis } from "ioredis"
+import { Redis } from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL as string, {
 	family: 4,
@@ -12,27 +10,8 @@ const redis = new Redis(process.env.REDIS_URL as string, {
 	enableReadyCheck: false,
 	maxRetriesPerRequest: 3,
 	retryStrategy: (times) => Math.min(times * 200, 5000),
-})
-	.on("error", (err) => {
-		console.error("Redis connection error:", err.message);
-	});
-
-const ac = createAccessControl({
-	user: ["create", "read", "update", "delete", "impersonate"],
-	role: ["create", "read", "update", "delete"],
-	app: ["manage"],
-});
-
-const adminRole = ac.newRole({
-	user: ["create", "read", "update", "delete", "impersonate"],
-	role: ["create", "read", "update", "delete"],
-	app: ["manage"],
-});
-
-const userRole = ac.newRole({
-	user: ["read"],
-	role: ["read"],
-	app: [],
+}).on("error", (err) => {
+	console.error("Redis connection error:", err.message);
 });
 
 const pool = new Pool({
@@ -60,33 +39,21 @@ export const auth = betterAuth({
 				defaultValue: "",
 				input: false,
 			},
+			role: {
+				type: "string",
+				required: false,
+				defaultValue: "viewer",
+				input: false,
+			},
 		},
 	},
 	session: {
-		storeSessionInDatabase: true,
 		cookieCache: {
 			enabled: true,
 			maxAge: 5 * 60,
 		},
 	},
-	plugins: [
-		openAPI(),
-		admin({
-			ac,
-			roles: {
-				admin: adminRole,
-				ADMINISTRATIVO: adminRole,
-				user: userRole,
-			},
-			adminRoles: ["admin", "ADMINISTRATIVO"],
-			adminSecret: process.env.ADMIN_SECRET,
-		}),
-		jwt(),
-		oauthProvider({
-			loginPage: "/login",
-			consentPage: "/oauth2/consent",
-		}),
-	],
+	plugins: [openAPI(), jwt()],
 	database: pool,
 	secondaryStorage: {
 		get: async (key) => {

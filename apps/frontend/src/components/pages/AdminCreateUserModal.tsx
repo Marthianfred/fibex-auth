@@ -24,7 +24,7 @@ export function AdminCreateUserModal({ onClose, onCreated }: Props) {
         body: { name, email, password, role },
       });
       if (res.error) {
-        setError(res.error.message || "Failed to create user");
+        setError(res.error || "Failed to create user");
       } else {
         onCreated();
         onClose();

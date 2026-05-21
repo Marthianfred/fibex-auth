@@ -26,7 +26,7 @@ export function AdminEditUserModal({ user, onClose, onUpdated }: Props) {
       if (email !== user.email) body.email = email;
       const res = await adminApi.updateUser({ body });
       if (res.error) {
-        setError(res.error.message || "Failed to update user");
+        setError(res.error || "Failed to update user");
       } else if (password) {
         await adminApi.setUserPassword({
           body: { userId: user.id, newPassword: password },

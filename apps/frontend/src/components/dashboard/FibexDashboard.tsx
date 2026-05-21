@@ -7,6 +7,7 @@ import {
   Settings,
   ChevronRight,
   LogOut,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -16,6 +17,7 @@ import { UsersPage } from "../pages/UsersPage";
 import { UserDetailPage } from "../pages/UserDetailPage";
 import { RouteProtectionPage } from "../pages/RouteProtectionPage";
 import { SettingsPage } from "../pages/SettingsPage";
+import { RolesPage } from "../pages/RolesPage";
 
 type SidebarItem = {
   title: string;
@@ -32,6 +34,11 @@ const sidebarItems: SidebarItem[] = [
     title: "Users",
     url: `${basePath}/users`,
     icon: Users,
+  },
+  {
+    title: "Roles & Permissions",
+    url: `${basePath}/roles`,
+    icon: Shield,
   },
   {
     title: "Route Protection",
@@ -63,6 +70,9 @@ function matchRoute(pathname: string): {
         return { page: "user-detail", params: { userId: parts[2] } };
       }
       return { page: "users", params: {} };
+    }
+    if (subpath === "roles") {
+      return { page: "roles", params: {} };
     }
     if (subpath === "route-protection") {
       return { page: "route-protection", params: {} };
@@ -243,6 +253,7 @@ export function FibexDashboard() {
             <div className="text-sm text-gray-500">
               {pathname === basePath && "Home"}
               {pathname.startsWith(`${basePath}/users`) && "Users"}
+              {pathname.startsWith(`${basePath}/roles`) && "Roles & Permissions"}
               {pathname.startsWith(`${basePath}/route-protection`) && "Route Protection"}
               {pathname.startsWith(`${basePath}/settings`) && "Settings"}
             </div>
@@ -251,6 +262,7 @@ export function FibexDashboard() {
           {page === "home" && <HomePage />}
           {page === "users" && <UsersPage />}
           {page === "user-detail" && <UserDetailPage userId={params.userId} />}
+          {page === "roles" && <RolesPage />}
           {page === "route-protection" && <RouteProtectionPage />}
           {page === "settings" && <SettingsPage />}
         </main>

@@ -25,7 +25,7 @@ export function UsersPage() {
       if (res.data) {
         setUsers(((res.data as any).users || []) as AuthUser[]);
       } else if (res.error) {
-        setError(res.error.message || "Failed to fetch users");
+        setError(res.error || "Failed to fetch users");
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch users");
