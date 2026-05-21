@@ -26,7 +26,7 @@ export function UserDetailPage({ userId }: Props) {
       ]);
       if (userRes.data) setUser((userRes.data as any).user || userRes.data);
       if (sessionsRes.data) setSessions((sessionsRes.data as any).sessions || sessionsRes.data || []);
-      if (userRes.error) setError(userRes.error.message || "Failed to fetch user");
+      if (userRes.error) setError(userRes.error || "Failed to fetch user");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to fetch user data");
     } finally {
